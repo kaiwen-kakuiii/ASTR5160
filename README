@@ -1,1 +1,13 @@
 Code for ASTR-5160 (Astro Technique II) at the University of Wyoming
+
+Topics covered so far:
+Python Recarrays
+Survey Observations
+Coordinate Tranforms
+Dust Maps
+Map Projections
+Distances on the Sphere
+Areas on the Sphere and HEALPix
+Spherical Caps
+Mangle
+General Masking

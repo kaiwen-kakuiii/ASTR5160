@@ -79,7 +79,7 @@ def splendid_function(data_table):
     mag_w1 = 22.5 - 2.5 * np.log10(data_table['FLUX_W1'])
     input_mag = np.vstack((mag_g - mag_i, mag_r - mag_w1)).T
 
-    # KZ identify and return the input data for QSOs
+    # KZ identify and return the input data for QSOs, cut_qso value is determined from the training function
     knn = load("../hw4/qso_classifier.joblib")
     dist, _ = knn.kneighbors(input_mag)
     cut_qso = 0.2457

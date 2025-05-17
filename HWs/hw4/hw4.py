@@ -81,7 +81,6 @@ def splendid_function(data_table):
 
     # KZ identify and return the input data for QSOs, cut_qso value is determined from the training function
     knn = load("../hw4/qso_classifier.joblib")
-    dist, _ = knn.kneighbors(input_mag)
     cut_qso = 0.2457
     dist, _ = knn.kneighbors(input_mag)
     return dist.mean(axis=1) <= cut_qso

@@ -47,16 +47,20 @@ def training_classifier():
 
     mag_g = 22.5 - 2.5 * np.log10(obj['FLUX_G'])
     mag_r = 22.5 - 2.5 * np.log10(obj['FLUX_R'])
-    mag_i = 22.5 - 2.5 * np.log10(obj['FLUX_Z'])
+    mag_z = 22.5 - 2.5 * np.log10(obj['FLUX_Z'])
     mag_w1 = 22.5 - 2.5 * np.log10(obj['FLUX_W1'])
 
     # KZ train KNN model and save the model
-    data_mag = np.vstack((mag_g - mag_i, mag_r - mag_w1))
+    data_mag = np.vstack((mag_g - mag_z, mag_r - mag_w1))
     knn = neighbors.KNeighborsClassifier(n_neighbors=5)
     knn.fit(data_mag.transpose(), np.zeros(len(data_mag[0])))
     distances, _ = knn.kneighbors(data_mag.transpose())
     cut_qso = np.percentile(distances.mean(axis=1), 95)
-    dump(knn, '../hw4/qso_classifier.joblib')
+
+    # KZ save the knn model at same path as hw4.py
+    script_dir = os.path.abspath(os.path.dirname(__file__))
+    model_path = os.path.join(script_dir, "qso_classifier.joblib")
+    dump(knn, model_path)
     return
 
 
@@ -70,17 +74,21 @@ def splendid_function(data_table):
     # KZ cut no detection on input data
     detected = ((data_table['FLUX_G'] > 0) & (data_table['FLUX_R'] > 0)\
                & (data_table['FLUX_Z'] > 0) & (data_table['FLUX_W1'] > 0))
-    data_table = data_table[detected]
+    data_table_cut = data_table[detected]
 
     # KZ calculate the color for the input table
-    mag_g = 22.5 - 2.5 * np.log10(data_table['FLUX_G'])
-    mag_r = 22.5 - 2.5 * np.log10(data_table['FLUX_R'])
-    mag_i = 22.5 - 2.5 * np.log10(data_table['FLUX_Z'])
-    mag_w1 = 22.5 - 2.5 * np.log10(data_table['FLUX_W1'])
-    input_mag = np.vstack((mag_g - mag_i, mag_r - mag_w1)).T
+    mag_g = 22.5 - 2.5 * np.log10(data_table_cut['FLUX_G'])
+    mag_r = 22.5 - 2.5 * np.log10(data_table_cut['FLUX_R'])
+    mag_z = 22.5 - 2.5 * np.log10(data_table_cut['FLUX_Z'])
+    mag_w1 = 22.5 - 2.5 * np.log10(data_table_cut['FLUX_W1'])
+    input_mag = np.vstack((mag_g - mag_z, mag_r - mag_w1)).T
+
+    # KZ set the current path for load knn model note this setup will not work with jupyter notebook
+    script_dir = os.path.abspath(os.path.dirname(__file__))
+    model_path = os.path.join(script_dir, "qso_classifier.joblib")
+    knn = load(model_path)
 
     # KZ identify and return the input data for QSOs, cut_qso value is determined from the training function
-    knn = load("../hw4/qso_classifier.joblib")
     cut_qso = 0.2457
     dist, _ = knn.kneighbors(input_mag)
     return dist.mean(axis=1) <= cut_qso

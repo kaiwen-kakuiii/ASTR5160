@@ -72,15 +72,22 @@ def splendid_function(data_table):
     """
 
     # KZ cut no detection on input data
-    detected = ((data_table['FLUX_G'] > 0) & (data_table['FLUX_R'] > 0)\
-               & (data_table['FLUX_Z'] > 0) & (data_table['FLUX_W1'] > 0))
-    data_table_cut = data_table[detected]
+    detected = ((data_table['FLUX_G'] > 0) & (data_table['FLUX_R'] > 0)
+                & (data_table['FLUX_Z'] > 0) & (data_table['FLUX_W1'] > 0))
 
-    # KZ calculate the color for the input table
-    mag_g = 22.5 - 2.5 * np.log10(data_table_cut['FLUX_G'])
-    mag_r = 22.5 - 2.5 * np.log10(data_table_cut['FLUX_R'])
-    mag_z = 22.5 - 2.5 * np.log10(data_table_cut['FLUX_Z'])
-    mag_w1 = 22.5 - 2.5 * np.log10(data_table_cut['FLUX_W1'])
+    # KZ set magnitude limit for each filter based on 5 sigma depth
+    mag_g = np.ones(len(data_table)) * 24.7
+    mag_r = np.ones(len(data_table)) * 23.9
+    mag_z = np.ones(len(data_table)) * 23.0
+    mag_w1 = np.ones(len(data_table)) * 20.5
+
+    # KZ calculate the magnitude form the input table only for the detected sources
+    mag_g[detected] = 22.5 - 2.5 * np.log10(data_table['FLUX_G'][detected])
+    mag_r[detected] = 22.5 - 2.5 * np.log10(data_table['FLUX_R'][detected])
+    mag_z[detected] = 22.5 - 2.5 * np.log10(data_table['FLUX_Z'][detected])
+    mag_w1[detected] = 22.5 - 2.5 * np.log10(data_table['FLUX_W1'][detected])
+
+    # KZ get the color for the input sources
     input_mag = np.vstack((mag_g - mag_z, mag_r - mag_w1)).T
 
     # KZ set the current path for load knn model note this setup will not work with jupyter notebook
